@@ -1,53 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:padding="20dp"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="16dp">
 
-    <EditText
-        android:id="@+id/editTextName"
-        android:hint="Enter Student Name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="15dp"/>
-
-    <EditText
-        android:id="@+id/editTextStudentID"
-        android:hint="Enter Student ID"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="25dp"/>
-
-    <!-- Label Umur -->
     <TextView
-        android:id="@+id/tvAgeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Student Input Form"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp" />
+
+    <EditText
+        android:id="@+id/etName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Student Age: 17"
-        android:textSize="16sp"
-        android:layout_marginBottom="5dp"/>
+        android:hint="Student Name"
+        android:inputType="textPersonName"
+        android:layout_marginBottom="12dp" />
 
-    <!-- SeekBar pengganti Spinner sesuai gambar soal ujian -->
+    <EditText
+        android:id="@+id/etStudentId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Student ID"
+        android:inputType="text"
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:id="@+id/tvAgeValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Age: 17"
+        android:textSize="16sp"
+        android:layout_marginBottom="8dp" />
+
     <SeekBar
         android:id="@+id/seekBarAge"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:max="33"
-        android:progress="0"
-        android:layout_marginBottom="30dp"/>
+        android:layout_marginBottom="24dp" />
 
     <Button
         android:id="@+id/btnAdd"
-        android:text="ADD STUDENT"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:text="ADD STUDENT"
+        android:layout_marginBottom="8dp" />
 
     <Button
         android:id="@+id/btnView"
-        android:text="VIEW STUDENT"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:text="VIEW STUDENT" />
+
 </LinearLayout>

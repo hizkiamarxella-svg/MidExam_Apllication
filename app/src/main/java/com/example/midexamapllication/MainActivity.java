@@ -7,16 +7,16 @@ import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button btnAdd, btnView;
-    private EditText editTextName, editTextStudentID;
+    private EditText etName, etStudentId;
     private SeekBar seekBarAge;
-    private TextView tvAgeLabel;
-
-    // Umur Minimal 17
+    private TextView tvAgeValue;
+    private Button btnAdd, btnView;
+    private DBHelper dbHelper;
     private int selectedAge = 17;
 
     @Override
@@ -24,20 +24,24 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        editTextName = findViewById(R.id.editTextName);
-        editTextStudentID = findViewById(R.id.editTextStudentID);
+        etName = findViewById(R.id.etName);
+        etStudentId = findViewById(R.id.etStudentId);
         seekBarAge = findViewById(R.id.seekBarAge);
-        tvAgeLabel = findViewById(R.id.tvAgeLabel);
+        tvAgeValue = findViewById(R.id.tvAgeValue);
         btnAdd = findViewById(R.id.btnAdd);
         btnView = findViewById(R.id.btnView);
 
-        // Setting SeekBar: Rentang 17 sampai 50 (33 langkah)
-        seekBarAge.setMax(33); // 50 - 17 = 33
+        dbHelper = new DBHelper(this);
+
+        // Max 33 (17 + 33 = 50)
+        seekBarAge.setMax(33);
+        tvAgeValue.setText("Age: " + selectedAge);
+
         seekBarAge.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 selectedAge = 17 + progress;
-                tvAgeLabel.setText("Student Age: " + selectedAge);
+                tvAgeValue.setText("Age: " + selectedAge);
             }
 
             @Override
@@ -48,22 +52,22 @@ public class MainActivity extends AppCompatActivity {
         });
 
         btnAdd.setOnClickListener(v -> {
-            String name = editTextName.getText().toString().trim();
-            String studentId = editTextStudentID.getText().toString().trim();
+            String name = etName.getText().toString().trim();
+            String studentId = etStudentId.getText().toString().trim();
 
             if (name.isEmpty() || studentId.isEmpty()) {
-                Toast.makeText(MainActivity.this, "Enter all data", Toast.LENGTH_SHORT).show();
-            } else {
-                DBHelper dbHelper = new DBHelper(MainActivity.this);
-                StudentModel studentModel = new StudentModel(name, studentId, selectedAge);
-                dbHelper.addStudent(studentModel);
-                Toast.makeText(MainActivity.this, "Add Successful", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Isi nama dan NIM!", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-                // Reset Input
-                editTextName.setText("");
-                editTextStudentID.setText("");
+            boolean isInserted = dbHelper.insertStudent(name, studentId, selectedAge);
+            if (isInserted) {
+                Toast.makeText(MainActivity.this, "Data Berhasil Ditambahkan!", Toast.LENGTH_SHORT).show();
+                etName.setText("");
+                etStudentId.setText("");
                 seekBarAge.setProgress(0);
-                tvAgeLabel.setText("Student Age: 17");
+            } else {
+                Toast.makeText(MainActivity.this, "Gagal Menambahkan Data!", Toast.LENGTH_SHORT).show();
             }
         });
 

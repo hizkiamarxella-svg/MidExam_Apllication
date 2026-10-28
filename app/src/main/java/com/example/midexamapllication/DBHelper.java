@@ -11,80 +11,86 @@ import java.util.List;
 
 public class DBHelper extends SQLiteOpenHelper {
 
-    private static final int DB_VERSION = 1;
-    private static final String DB_NAME = "student_db";
-    private static final String TB_NAME = "student";
+    private static final String DATABASE_NAME = "StudentDB.db";
+    private static final int DATABASE_VERSION = 1;
 
-    private static final String Col_ID = "id";
-    private static final String Col_Name = "name";
-    private static final String Col_StudentID = "student_id";
-    private static final String Col_Age = "age";
-
-    private SQLiteDatabase mySQLite;
-
-    private static final String CREATE_TABLE = "CREATE TABLE " + TB_NAME + " (" +
-            Col_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-            Col_Name + " TEXT NOT NULL, " +
-            Col_StudentID + " TEXT NOT NULL, " +
-            Col_Age + " INTEGER NOT NULL);";
+    public static final String TABLE_NAME = "students";
+    public static final String COLUMN_ID = "id";
+    public static final String COLUMN_NAME = "name";
+    public static final String COLUMN_STUDENT_ID = "student_id";
+    public static final String COLUMN_AGE = "age";
 
     public DBHelper(Context context) {
-        super(context, DB_NAME, null, DB_VERSION);
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(CREATE_TABLE);
+        String createTable = "CREATE TABLE " + TABLE_NAME + " (" +
+                COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_NAME + " TEXT, " +
+                COLUMN_STUDENT_ID + " TEXT, " +
+                COLUMN_AGE + " INTEGER)";
+        db.execSQL(createTable);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TB_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
         onCreate(db);
     }
 
-    public void addStudent(StudentModel studentModel) {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(Col_Name, studentModel.getName());
-        contentValues.put(Col_StudentID, studentModel.getStudentId());
-        contentValues.put(Col_Age, studentModel.getAge());
-
-        mySQLite = this.getWritableDatabase();
-        mySQLite.insert(TB_NAME, null, contentValues);
+    // Insert Data
+    public boolean insertStudent(String name, String studentId, int age) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_NAME, name);
+        cv.put(COLUMN_STUDENT_ID, studentId);
+        cv.put(COLUMN_AGE, age);
+        long result = db.insert(TABLE_NAME, null, cv);
+        return result != -1;
     }
 
-    public void updateStudent(StudentModel studentModel) {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(Col_Name, studentModel.getName());
-        contentValues.put(Col_StudentID, studentModel.getStudentId());
-        contentValues.put(Col_Age, studentModel.getAge());
-
-        mySQLite = this.getWritableDatabase();
-        mySQLite.update(TB_NAME, contentValues, Col_ID + " = ?",
-                new String[]{String.valueOf(studentModel.getId())});
+    // Update Data
+    public boolean updateStudent(int id, String name, String studentId, int age) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_NAME, name);
+        cv.put(COLUMN_STUDENT_ID, studentId);
+        cv.put(COLUMN_AGE, age);
+        int result = db.update(TABLE_NAME, cv, COLUMN_ID + "=?", new String[]{String.valueOf(id)});
+        return result > 0;
     }
 
-    public void deleteStudent(int id) {
-        mySQLite = this.getWritableDatabase();
-        mySQLite.delete(TB_NAME, Col_ID + " = ?", new String[]{String.valueOf(id)});
+    // Delete Data
+    public boolean deleteStudent(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int result = db.delete(TABLE_NAME, COLUMN_ID + "=?", new String[]{String.valueOf(id)});
+        return result > 0;
     }
 
-    public List<StudentModel> getStudentList() {
-        String viewData = "SELECT id, name, student_id, age FROM " + TB_NAME;
-        mySQLite = this.getReadableDatabase();
-        List<StudentModel> storeStudents = new ArrayList<>();
-        Cursor cursor = mySQLite.rawQuery(viewData, null);
+    // Read All Data
+    public List<StudentModel> getAll() {
+        List<StudentModel> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME, null);
 
         if (cursor.moveToFirst()) {
             do {
-                int id = Integer.parseInt(cursor.getString(0));
-                String name = cursor.getString(1);
-                String studentId = cursor.getString(2);
-                int age = Integer.parseInt(cursor.getString(3));
-                storeStudents.add(new StudentModel(id, name, studentId, age));
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID));
+                String name = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME));
+                String studentId = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_STUDENT_ID));
+                int age = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_AGE));
+
+                list.add(new StudentModel(id, name, studentId, age));
             } while (cursor.moveToNext());
         }
         cursor.close();
-        return storeStudents;
+        return list;
+    }
+
+    // Method alias agar dipanggil getAllStudents() maupun getAll() sama-sama bisa
+    public List<StudentModel> getAllStudents() {
+        return getAll();
     }
 }
